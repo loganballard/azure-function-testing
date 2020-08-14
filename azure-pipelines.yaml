@@ -1,0 +1,17 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+      - feature/*
+
+variables:
+  foo: bar
+
+pool:
+  vmImage: ubuntu-16.04
+
+steps:
+  - script: echo vars
+    displayName: 'echoing vars'
+
