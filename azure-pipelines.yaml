@@ -12,6 +12,11 @@ pool:
   vmImage: ubuntu-16.04
 
 steps:
-  - script: echo vars
+  - script: |
+      echo "Build.Reason: $(Build.Reason)"
+      echo "Build.Repository.LocalPath: $(Build.Repository.LocalPath)"
+      echo "Build.SourceBranch: $(Build.SourceBranch)"
+      echo "System.PullRequest.SourceBranch: $(System.PullRequest.SourceBranch)"
+      echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
     displayName: 'echoing vars'
 
