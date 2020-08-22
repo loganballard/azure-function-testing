@@ -2,10 +2,10 @@ trigger:
   branches:
     include:
       - master
-      - feature/*
 
 variables:
   foo: bar
+  System.Debug: true
 
 pool:
   vmImage: ubuntu-16.04
