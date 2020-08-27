@@ -1,0 +1,24 @@
+{
+  "name": "testing-pipeline-vars",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "./node_modules/.bin/mocha -r ts-node/register ./InvokeDestroy/test/*"
+  },
+  "dependencies": {
+    "fp-ts": "^2.8.2"
+  },
+  "devDependencies": {
+    "@azure/functions": "^1.0.2-beta2",
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.3",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^3.3.3"
+  }
+}
