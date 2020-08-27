@@ -95,3 +95,6 @@ local.settings.json
 
 # vs code settings
 .vscode
+
+# secrets
+secrets.json
