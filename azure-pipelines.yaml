@@ -8,6 +8,9 @@ variables:
   foo: bar
   System.Debug: true
 
+parameters:
+  dynamic_param: "not this hopefully"
+
 pool:
   vmImage: ubuntu-16.04
 
@@ -20,6 +23,7 @@ steps:
       echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
       echo "hopefully passed in var: $(PASSEDINVAR)"
       echo "maybe foo?: $(foo)"
+      echo "maybe the param: $(dynamic_param)"
     displayName: 'echoing vars'
 
 # noop
