@@ -1,18 +1,13 @@
+# Looks like I can pass in arbitrary data using the BUILD REST API.  I have to put it in the parameters
+# section of the build request.  SEe the pipeline_info.ts section for more details.  But I can't define
+# it in the pipeline itself, until it is used.  So if it doesn't get set in the variables or parameters
+# section, it'll get evaluated.  See Run 20200828.37
+
 trigger:
   branches:
     include:
       - master
-      - auth
-
-variables:
-  foo: bar
-  System.Debug: true
-
-parameters:
-- name: dynamic_param
-  displayName: dynamic parameter
-  type: string
-  default: "hopefully not this"
+      - destroy_*
 
 pool:
   vmImage: ubuntu-16.04
@@ -25,8 +20,6 @@ steps:
       echo "System.PullRequest.SourceBranch: $(System.PullRequest.SourceBranch)"
       echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
       echo "hopefully passed in var: $(PASSEDINVAR)"
-      echo "maybe foo?: $(foo)"
-      echo "maybe the param: ${{ parameters.dynamic_param }}"
     displayName: 'echoing vars'
 
 # noop

@@ -21,3 +21,4 @@ AZURE DEVOPS
 
 2. List Pipelines using https://dev.azure.com/{{adoOrg}}/{{adoProj}}/_apis/pipelines?api-version=6.1-preview.1 and personal access token in the header under basic auth
 
+

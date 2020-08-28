@@ -1,101 +1,63 @@
+import * as azdev from "azure-devops-node-api";
+import * as ba from "azure-devops-node-api/BuildApi";
 import secrets from '../secrets.json';
-import fetch from 'node-fetch';
-import { encode } from 'js-base64';
-import { none } from 'fp-ts/lib/Option';
+import { Build } from "azure-devops-node-api/interfaces/BuildInterfaces";
 
-const adoOrg = "loganballard0423";
 const adoProj = "testing";
-var tokenAuthBody = `grant_type=client_credentials&client_id=${secrets.SP.appId}&client_secret=${secrets.SP.password}&resource=https://management.azure.com/`;
-var tokenUrl = `https://login.microsoftonline.com/${secrets.SP.tenant}/oauth2/token`;
-var pipelineListUrl = `https://dev.azure.com/${adoOrg}/${adoProj}/_apis/pipelines?api-version=6.1-preview.1`;
+const adoOrg = "https://dev.azure.com/loganballard0423";
+const token = secrets.PAT;
 
 
-async function get_access_token(accessTokenUrl: string, tokenBody: string): Promise<string> {
-    return await fetch(accessTokenUrl, {
-        method: 'post',
-        body: tokenAuthBody,
-        headers: {  'Content-type': 'application/x-www-form-urlencoded' }
-    })
-        .then(res => res.json())
-        .then(data => data.access_token)
-        .catch();
+function get_connection(): azdev.WebApi {
+    let authHandler = azdev.getPersonalAccessTokenHandler(token); 
+    return new azdev.WebApi(adoOrg, authHandler);    
 }
 
-async function list_pipelines(pipelineUrl: string): Promise<Array<Object>> {
-    return await fetch(pipelineUrl, {
-        method: 'get',
-        headers: {
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + encode(":" + secrets.PAT)
-        }
-    })
-        .then(res => res.json())
-        .then(data => data['value'])
+async function get_recent_build_by_repo_and_branch(repo_id: string, branch: string): Promise<Build> {
+    let connection = get_connection();
+    let build: ba.IBuildApi = await connection.getBuildApi();
+    return await build.getBuilds(adoProj, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, undefined, undefined, undefined, undefined, branch, undefined, repo_id, "TfsGit")
+        .then(builds => builds[0])
 }
 
-async function get_pipeline_id_by_repo_name(repo_name: string): Promise<number> {
-    let pipelines = await list_pipelines(pipelineListUrl)
-        .then(data => data);
-    for (var i = 0; i < pipelines.length; i++) {
-        if (pipelines[i]['name'] === repo_name) {
-            return pipelines[i]['id'];
+function create_new_build_definition(buildDefinition: Build, params: object): object {
+    let new_build = {
+        parameters: JSON.stringify(params),
+        resources: {
+            repositories: {
+                self: {
+                    refName: buildDefinition.sourceBranch,
+                },
+            },
+        },
+        sourceBranch: buildDefinition.sourceBranch,
+        sourceVesion: buildDefinition.sourceVersion,
+        definition: {
+            id: buildDefinition.definition.id
         }
     }
-    return -1;
+    return new_build;
 }
 
-async function get_pipeline_runs_by_id(pipeline_id: number): Promise<Array<Object>> {
-    let pipelineRunListUrl = `https://dev.azure.com/${adoOrg}/${adoProj}/_apis/pipelines/${pipeline_id}/runs?api-version=6.1-preview.1`;
-    return await fetch(pipelineRunListUrl, {
-        method: 'get',
-        headers: {
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + encode(":" + secrets.PAT)
-        }
-    })
-        .then(res => res.json())
-        .then(data => data);
+async function queue_new_build(buildDefinition: object) {
+    let connection = get_connection();
+    let build: ba.IBuildApi = await connection.getBuildApi();
+    const url = `${adoOrg}/${adoProj}/_apis/build/builds?api-version=6.1-preview.6`;
+    const reqOpts = {
+      acceptHeader: 'application/json'
+    };
+    build.rest.create(url, buildDefinition, reqOpts)
+        .then()
+        .catch(e => console.log(e));
 }
 
-async function get_most_recent_pipeline_runs_by_id(pipeline_id: number): Promise<Array<number>> {
-    return await get_pipeline_runs_by_id(pipeline_id)
-        .then(data => {
-            var id_arr = [];
-            for (var i = 0; i < data['count']; i++) {
-                // console.log(data['value'][i]['id']);
-                id_arr.push(data['value'][i]['id']);
-            }
-            return id_arr;
+function trigger_destroy_build(repo_id: string, repo_branch: string) {
+    get_recent_build_by_repo_and_branch(repo_id, repo_branch)
+        .then(most_recent_build => {
+            let params = {"DESTROY_BRANCH_BUILD": "DO I EXIST"};
+            let destructive_build = create_new_build_definition(most_recent_build, params);
+            queue_new_build(destructive_build);
         })
 }
 
-async function get_most_recent_pipeline_run_id_by_repo_and_branch(repo_name: string, branch_name: string): Promise<number> {
-    let pipeline_id = await get_pipeline_id_by_repo_name(repo_name)
-        .then(id => id);
-    let run_ids = await get_most_recent_pipeline_runs_by_id(pipeline_id);
-    for (var i = 0; i < run_ids.length; i++) {
-        let id = run_ids[i];
-        var getPipelineRunByIdUrl = `https://dev.azure.com/${adoOrg}/${adoProj}/_apis/pipelines/${pipeline_id}/runs/${id}?api-version=6.1-preview.1`;
-        let found_the_run = await fetch(getPipelineRunByIdUrl, {
-            method: 'get',
-            headers: {
-                'Content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + encode(":" + secrets.PAT)
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                let branch = data['resources']['repositories']['self']['refName'];
-                if (branch == branch_name) {
-                    return true;
-                }
-                return false;
-            })
-        if (found_the_run === true) {
-            return id;
-        }
-    }
-    return -1;
-}
-
-get_most_recent_pipeline_run_id_by_repo_and_branch('testing-pipeline-vars', 'refs/heads/auth').then(data => console.log(data));
+trigger_destroy_build("a026d561-aeb3-4772-a7d9-b05c89a61511", "refs/heads/auth");
