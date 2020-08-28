@@ -26,7 +26,7 @@ steps:
       echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
       echo "hopefully passed in var: $(PASSEDINVAR)"
       echo "maybe foo?: $(foo)"
-      echo "maybe the param: $(dynamic_param)"
+      echo "maybe the param: ${{ parameters.dynamic_param }}"
     displayName: 'echoing vars'
 
 # noop
