@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - master
+      - auth
 
 variables:
   foo: bar
@@ -17,6 +18,7 @@ steps:
       echo "Build.SourceBranch: $(Build.SourceBranch)"
       echo "System.PullRequest.SourceBranch: $(System.PullRequest.SourceBranch)"
       echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
+      echo "hopefully passed in var: $(PASSEDINVAR)"
     displayName: 'echoing vars'
 
 # noop
