@@ -54,10 +54,10 @@ async function queue_new_build(buildDefinition: object) {
 function trigger_destroy_build(repo_id: string, repo_branch: string) {
     get_recent_build_by_repo_and_branch(repo_id, repo_branch)
         .then(most_recent_build => {
-            let params = {"DESTROY_BRANCH_BUILD": "DO I EXIST"};
+            let params = {"PASSEDINVAR": "DO I EXIST"};
             let destructive_build = create_new_build_definition(most_recent_build, params);
             queue_new_build(destructive_build);
         })
 }
 
-trigger_destroy_build("a026d561-aeb3-4772-a7d9-b05c89a61511", "refs/heads/auth");
+trigger_destroy_build("a026d561-aeb3-4772-a7d9-b05c89a61511", "refs/heads/destroy_branch_build");
