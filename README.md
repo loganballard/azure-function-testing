@@ -1,5 +1,6 @@
 https://blog.jongallant.com/2017/11/azure-rest-apis-postman/
 
+AZURE PORTAL
 1. Create the Azure SP Account
   - `az login`
   - `azure account set --subscription "36ff2f05-661e-481f-8359-3e166b639029"`
@@ -15,4 +16,8 @@ https://blog.jongallant.com/2017/11/azure-rest-apis-postman/
 
 5. Get resource groups using access_token as bearer token
 
-6. 
+AZURE DEVOPS
+1. Create Personal Access Token - https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page
+
+2. List Pipelines using https://dev.azure.com/{{adoOrg}}/{{adoProj}}/_apis/pipelines?api-version=6.1-preview.1 and personal access token in the header under basic auth
+
