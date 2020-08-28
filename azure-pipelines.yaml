@@ -19,6 +19,7 @@ steps:
       echo "System.PullRequest.SourceBranch: $(System.PullRequest.SourceBranch)"
       echo "System.PullRequest.TargetBranch: $(System.PullRequest.TargetBranch)"
       echo "hopefully passed in var: $(PASSEDINVAR)"
+      echo "maybe foo?: $(foo)"
     displayName: 'echoing vars'
 
 # noop
