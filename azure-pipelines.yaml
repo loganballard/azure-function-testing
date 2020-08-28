@@ -9,9 +9,10 @@ variables:
   System.Debug: true
 
 parameters:
-  - name: dynamic_param
-    displayName: dynamic parameter
-    type: string
+- name: dynamic_param
+  displayName: dynamic parameter
+  type: string
+  default: "hopefully not this"
 
 pool:
   vmImage: ubuntu-16.04
